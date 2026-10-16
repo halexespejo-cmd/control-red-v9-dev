@@ -1,6 +1,27 @@
 version: '3.8'
 
 services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: control-red-postgres
+    environment:
+      POSTGRES_USER: control_red_user
+      POSTGRES_PASSWORD: control_red_pass
+      POSTGRES_DB: control_red
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - control-red-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U control_red_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -9,17 +30,27 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=True
-      - DATABASE_URL=sqlite+aiosqlite:///./data/control_red.db
+      - APP_NAME=control-red
+      - DEBUG=true
+      - LOG_LEVEL=INFO
+      - DATABASE_URL=postgresql+asyncpg://control_red_user:control_red_pass@postgres:5432/control_red
+      - REDIS_URL=redis://redis:6379/0
       - NETWORK_INTERFACE=eth0
       - SCAN_INTERVAL=15
       - ARP_INTERVAL=2
-      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-default-secret-change-me}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-default-jwt-secret-change-me}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
     volumes:
       - ./backend/src:/app/src
-      - backend-data:/app/data
     networks:
       - control-red-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     # Requires --cap-add=NET_ADMIN for ARP spoofing
     cap_add:
@@ -30,9 +61,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 40s
 
-  # Redis for caching
+  # Redis Cache
   redis:
     image: redis:7-alpine
     container_name: control-red-redis
@@ -44,36 +75,17 @@ services:
       - control-red-network
     restart: unless-stopped
     command: redis-server --appendonly yes
-
-  # PostgreSQL (optional - for production)
-  # Uncomment to use PostgreSQL instead of SQLite
-  # postgres:
-  #   image: postgres:16-alpine
-  #   container_name: control-red-postgres
-  #   ports:
-  #     - "5432:5432"
-  #   environment:
-  #     - POSTGRES_USER=control_red
-  #     - POSTGRES_PASSWORD=your_secure_password
-  #     - POSTGRES_DB=control_red
-  #   volumes:
-  #     - postgres-data:/var/lib/postgresql/data
-  #   networks:
-  #     - control-red-network
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U control_red"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
 volumes:
-  backend-data:
+  postgres-data:
     driver: local
   redis-data:
     driver: local
-  # postgres-data:
-  #   driver: local
 
 networks:
   control-red-network:

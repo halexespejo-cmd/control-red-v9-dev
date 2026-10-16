@@ -15,34 +15,44 @@ Backend modular en Python para control de red WiFi mediante ARP spoofing. Permit
 
 ## ⚡ Quick Start
 
-### Opción 1: Docker (Recomendado)
+### Opción 1: Script Automático (Más Rápido) 🚀
 
 ```bash
 # Clonar repositorio
 git clone https://github.com/halexespejo-cmd/control-red-v9-dev.git
 cd control-red-v9-dev
 
-# Levantar containers
+# Run script (verifica Docker, genera .env, levanta todo)
+./scripts/quickstart.sh
+
+# ¡Hecho! Backend en http://localhost:8000
+```
+
+**Duración:** 3 minutos  
+**Incluye:** PostgreSQL + Redis + Backend
+
+### Opción 2: Railway (1-Click Deploy) ☁️
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/control-red-v9)
+
+1. Click botón arriba
+2. Espera 3 min deploy
+3. Telegram: @Mi_red_control_bot
+4. `/start` → Connect backend
+
+**Ver guía completa:** [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md)
+
+### Opción 3: Docker Manual 🐳
+
+```bash
+# Levantar servicios
 docker-compose up -d
 
 # Ver logs
-docker-compose logs -f backend
+docker-compose logs -f
 ```
 
-**Hecho!** Backend disponible en `http://localhost:8000`
-
-### Opción 2: Local (Desarrollo)
-
-```bash
-# Instalar dependencias
-make install
-
-# Run tests
-make test
-
-# Iniciar servidor
-make run-dev
-```
+**Ver guía completa:** [DOCKER_QUICKSTART.md](DOCKER_QUICKSTART.md)
 
 ---
 
