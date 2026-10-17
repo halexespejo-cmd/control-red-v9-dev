@@ -29,11 +29,18 @@ Escudo negro de protección con símbolo WiFi lima neón en el centro, represent
 - ✅ Social media (Twitter/X, Reddit)
 - ✅ Documentación técnica
 
+### Variantes Disponibles
+
+- [x] **logo-1024.png** (1024×576) - Logo principal, horizontal
+- [x] **logo-telegram-512.png** (1024×576) - Telegram bot optimizado
+
+> **Nota Telegram:** Telegram acepta cualquier tamaño y redimensiona automáticamente a circular.
+> Ambas versiones funcionan perfectamente como foto de perfil del bot.
+
 ### Variantes por Generar
 
-- [ ] 512×512 (Telegram optimizado)
-- [ ] 256×256 (favicon)
-- [ ] Versión circular (badge)
+- [ ] 256×256 cuadrado (favicon)
+- [ ] Versión circular (badge style)
 - [ ] Versión fondo blanco
 - [ ] Versión fondo oscuro
 
